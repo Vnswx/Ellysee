@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Photo;
 use App\Models\Comment;
 use App\Models\Like;
+use App\Models\ViolationType;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
@@ -20,19 +21,20 @@ class HomeController extends Controller
     }
 
     public function search(Request $request)
-{
-    $search = $request->input('search');
+    {
+        $search = $request->input('search');
 
-    $photos = Photo::where('judulfoto', 'like', '%' . $search . '%')->get();
-    $users = User::where('name', 'like', '%' . $search . '%')->get();
-    return view('Nav-Point.search', compact('photos', 'users', 'search'));
-}
+        $photos = Photo::where('judulfoto', 'like', '%' . $search . '%')->get();
+        $users = User::where('name', 'like', '%' . $search . '%')->get();
+        return view('Nav-Point.search', compact('photos', 'users', 'search'));
+    }
 
 
     public function showPhoto($encryptedId)
     {
         $id = Crypt::decrypt($encryptedId);
         $photo = Photo::findOrFail($id);
+        $violationTypes = ViolationType::all();
 
         $relatedPhotos = $this->getRelatedPhotos($photo);
 
@@ -56,7 +58,7 @@ class HomeController extends Controller
         $totalComments = $photo->comments->count();
         $totalLikes = $photo->likes()->count();
 
-        return view('Nav-Point.Photos.detail-photo', compact('photo', 'userName', 'userProfileImage', 'comments', 'totalComments', 'totalLikes', 'relatedPhotos', 'userId'));
+        return view('Nav-Point.Photos.detail-photo', compact('photo', 'userName', 'userProfileImage', 'comments', 'totalComments', 'totalLikes', 'relatedPhotos', 'userId', 'violationTypes'));
     }
 
     private function getRelatedPhotos($photo)

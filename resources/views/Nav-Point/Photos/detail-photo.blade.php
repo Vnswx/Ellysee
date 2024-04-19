@@ -400,7 +400,7 @@
         </div>
 
 
-        <div class="Instagram-card-content">
+        <div class="Instagram-card-content" style="@if($photo->width == 200 && $photo->height == 200) margin-left: 30px; @endif">
             <div class="Instagram-card-header">
                 @if (isset($userName) && isset($userProfileImage))
                     @if ($userProfileImage === 'images/default_profile.jpg')
@@ -474,6 +474,30 @@
                 </form>
             </div>
         </div>
+    </div>
+    <div class="container">
+        <form action="{{ route('report') }}" method="POST">
+            @csrf
+        
+            <input type="hidden" name="photo_id" value="{{ $photo->id }}">
+        
+            <div class="form-group">
+                <label for="reason">Alasan Pelaporan:</label>
+                <textarea name="reason" id="reason" class="form-control" rows="4" required></textarea>
+            </div>
+        
+            <div class="form-group">
+                <label for="violation_type_id">Jenis Pelanggaran:</label>
+                <select name="violation_type_id" id="violation_type_id" class="form-control" required>
+                    <option value="">Pilih Jenis Pelanggaran</option>
+                    @foreach($violationTypes as $violationType)
+                        <option value="{{ $violationType->id }}">{{ $violationType->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        
+            <button type="submit" class="btn btn-primary">Laporkan</button>
+        </form>
     </div>
     <div class="container" style="margin-top: 9vw">
         <h2>More to explore</h2>

@@ -8,6 +8,8 @@ use App\Http\Controllers\PhotoController;
 use App\Models\Photo;
 use App\Http\Controllers\PDetailController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ViolationTypeController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +45,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/profile/{username}', [ProfileController::class, 'viewProfile'])->name('profile.view');
     Route::get('/albums', [AlbumController::class, 'index'])->name('albums');
     Route::post('/albums/create', [AlbumController::class, 'store'])->name('albums-create');
+    Route::get('export-albums', [AlbumController::class, 'exportAlbumToExcel'])->name('exportAlbumToExcel');
     Route::get('/photos', [PhotoController::class, 'index'])->name('photos');
     Route::post('/photos/create', [PhotoController::class, 'store'])->name('photos-create');
     Route::post('/logout', [AuthController::class, 'actionLogout'])->name('logout');
+    Route::get('/dashboard', [ReportController::class, 'index'])->name('admin-index');
+    Route::post('/report', [ReportController::class, 'store'])->name('report');
+    Route::get('/violation', [ViolationTypeController::class, 'index'])->name('violation-index');
+    Route::post('/violation-types', [ViolationTypeController::class, 'store'])->name('violation-store');
+    Route::post('/reports/{report}/approve', [ReportController::class, 'approve'])->name('report-approve');
+    Route::post('/reports/{report}/reject', [ReportController::class, 'reject'])->name('report-reject');
 });

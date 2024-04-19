@@ -14,6 +14,7 @@ class Photo extends Model
     protected $fillable = [
         'judulfoto',
         'deskripsifoto',
+        'reported',
         'user_id'
     ];
 
@@ -42,6 +43,11 @@ class Photo extends Model
     {
         $user = auth()->user();
         return $user ? $this->likes()->where('user_id', $user->id)->exists() : false;
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
     }
 
 }

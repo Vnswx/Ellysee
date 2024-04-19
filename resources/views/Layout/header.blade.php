@@ -68,7 +68,11 @@
                     </a>
                     <ul class="nav mx-auto">
                         <li><a href="{{ route('home') }}">Home</a></li>
-                        <li><a href="#work-process">Explore</a></li>
+                        @if (auth()->check() && auth()->user()->role === 'admin')
+                        <li><a href="{{ route('admin-index') }}">Dashboard Admin</a></li>
+                        @else
+                            <li><a href="#work-process">Explore</a></li>
+                        @endif
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" id="dropdownMenuLink" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
@@ -89,7 +93,7 @@
                     <!-- ***** Logo End ***** -->
                     <!-- ***** Menu Start ***** -->
                     <ul class="nav mx-auto">
-                       
+
                     </ul>
                     @if (!Auth::check())
                         <button onclick="window.location.href='{{ route('login') }}'" class="btn"

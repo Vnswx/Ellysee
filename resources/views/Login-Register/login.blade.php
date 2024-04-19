@@ -14,7 +14,7 @@
 <body>
     <div id="main-wrapper" class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-xl-10">
+            <div class="col-xl-10" style="margin-top: 30px">
                 <div class="card border-0">
                     <div class="card-body p-0">
                         <div class="row no-gutters">
@@ -57,7 +57,7 @@
                                     <div class="account-testimonial">
                                         <h4 class="text-white mb-4">This  beautiful theme yours!</h4>
                                         <p class="lead text-white">"Best investment i made for a long time. Can only recommend it for other users."</p>
-                                        <p>- Admin User</p>
+                                        <p>- Ellysee.</p>
                                     </div>
                                 </div>
                             </div>

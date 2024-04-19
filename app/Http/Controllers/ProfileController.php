@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Album;
 use App\Models\User;
+use App\Models\Photo;
 use Illuminate\Support\Facades\Crypt;
 
 
@@ -33,14 +34,16 @@ class ProfileController extends Controller
             }
         }
 
+        $photos = auth()->user()->photos()->get(); 
+
+
         $isOwnProfile = auth()->check() && auth()->user()->id === $user->id;
-        return view("Nav-Point.Profile.profile", compact('user', 'albums', 'isOwnProfile', 'totalAlbumsCount', 'totalPhotosCount', 'totalLikesCount'));
+        return view("Nav-Point.Profile.profile", compact('user', 'albums', 'isOwnProfile', 'totalAlbumsCount', 'totalPhotosCount', 'totalLikesCount', 'photos'));
     }
 
     public function viewProfile($username)
     {
         $user = User::where('name', $username)->firstOrFail();
-        // dd($user);
         $albums = $user->albums;
         $totalAlbumsCount = $user->albums->count();
         foreach ($albums as $album) {
@@ -57,9 +60,10 @@ class ProfileController extends Controller
                 $totalLikesCount += $photo->likes()->count();
             }
         }
-
+        $photos = $album->photos;
+        
         $isOwnProfile = auth()->check() && auth()->user()->id === $user->id;
-        return view("Nav-Point.Profile.profile", compact('user', 'albums', 'isOwnProfile', 'totalAlbumsCount', 'totalPhotosCount', 'totalLikesCount'));
+        return view("Nav-Point.Profile.profile", compact('user', 'albums', 'isOwnProfile', 'totalAlbumsCount', 'totalPhotosCount', 'totalLikesCount', 'photos'));
     }
 
 

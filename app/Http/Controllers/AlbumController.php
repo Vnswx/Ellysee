@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Album;
+use App\Models\User;
+use App\Exports\AlbumsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AlbumController extends Controller
 {
@@ -26,5 +29,13 @@ class AlbumController extends Controller
         ]);
 
         return redirect()->route('home')->with('success', 'Album berhasil dibuat.');
+    }
+    public function exportAlbumToExcel()
+    {
+        $username = auth()->user()->name;
+        $userId = User::where('name', $username)->value('id');
+        $albumIds = Album::where('user_id', $userId)->pluck('id')->toArray();
+
+        return Excel::download(new AlbumsExport($albumIds), 'albums.xlsx');
     }
 }

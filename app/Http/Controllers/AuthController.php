@@ -69,6 +69,7 @@ class AuthController extends Controller
             'alamat' => $request->alamat,
             'namalengkap' => $request->namalengkap,
             'profile_image' => $defaultImagePath,
+            'role' => 'user',
         ]);
 
         Alert::success('Success', 'Registration successful. Please login.')->persistent(true);
