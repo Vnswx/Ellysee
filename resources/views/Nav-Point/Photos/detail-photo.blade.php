@@ -392,6 +392,7 @@
 
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="Instagram-card" style="margin-top: 10rem; margin-bottom: 5rem; position: relative">
         <div class="Instagram-card-image">
             <img id="foto_{{ $photo->id }}" src="{{ Storage::url($photo->lokasifile) }}"
@@ -400,7 +401,7 @@
         </div>
 
 
-        <div class="Instagram-card-content" style="@if($photo->width == 200 && $photo->height == 200) margin-left: 30px; @endif">
+        <div class="Instagram-card-content" style="@if ($photo->width == 200 && $photo->height == 200) margin-left: 30px; @endif">
             <div class="Instagram-card-header">
                 @if (isset($userName) && isset($userProfileImage))
                     @if ($userProfileImage === 'images/default_profile.jpg')
@@ -410,11 +411,22 @@
                         <img src="{{ asset('storage/' . $userProfileImage) }}" alt="Profile Image"
                             class="Instagram-card-user-image" width="80">
                     @endif
-                    <a class="Instagram-card-user-name" href="{{ route('profile.view', ['username' => $userName]) }}">
-                        {{ $userName }}
-                    </a>
-                    {{-- <div class="Instagram-card-time"> 1 sem </div> --}}
                 @endif
+                <a class="Instagram-card-user-name" href="{{ route('profile.view', ['username' => $userName]) }}">
+                    {{ $userName }}
+                </a>
+                <div id="reportButtonContainer" class="Instagram-card-time text-center" style="padding-top: 0.5vw">
+                    @if (in_array($photo->id, $userReports))
+                        <p id="reportMessage" class="reported">Reported</p>
+                    @else
+                        <button id="reportButton" class="btn btn-danger" type="button" data-toggle="modal"
+                            data-target="#reportModal"
+                            style="width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; float: right; vertical-align: middle;">
+                            <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+                        </button>
+                    @endif
+                </div>
+
             </div>
             <p class="Likes" style="margin-top: 2rem;">{{ $photo->judulfoto }}</p>
             <p>
@@ -430,7 +442,7 @@
             <hr>
             <div class="Instagram-card-footer">
                 @if ($comments->count() > 0)
-                    <div class="komentar-list" style="max-height: 265px; overflow-y: auto;">
+                    <div id="commentList" class="komentar-list" style="max-height: 265px; overflow-y: auto;">
                         @foreach ($comments as $comment)
                             <div class="komentar">
                                 <a href="{{ route('profile.view', ['username' => $userName]) }}">
@@ -438,7 +450,8 @@
                                 </a>
                                 {{ $comment->komentar }}
                                 <div class="comment-time-wrapper">
-                                    <span class="comment-time">{{ $comment->formatted_time }}</span>
+                                    <span class="comment-time"
+                                        data-time="{{ $comment->created_at }}">{{ $comment->formatted_time }}</span>
                                 </div>
                             </div>
                         @endforeach
@@ -446,6 +459,7 @@
                 @else
                     <p style="margin-bottom: 50px; position: relative; left: 120px; width: 150px">No comments yet.</p>
                 @endif
+
             </div>
 
 
@@ -464,11 +478,12 @@
                 </form>
 
 
-                <form action="{{ route('comment.store') }}" method="POST">
+                <form id="commentForm" action="{{ route('comment.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="photo_id" value="{{ $photo->id }}">
                     <fieldset class="fieldInput">
-                        <input name="komentar" class="form-input" type="text" placeholder="Comment Here!">
+                        <input name="komentar" id="KomentarInput" class="form-input" type="text"
+                            placeholder="Comment Here!">
                         <button type="submit" class="form-submit">Enter</button>
                     </fieldset>
                 </form>
@@ -476,63 +491,171 @@
         </div>
     </div>
     <div class="container">
-        <form action="{{ route('report') }}" method="POST">
-            @csrf
-        
-            <input type="hidden" name="photo_id" value="{{ $photo->id }}">
-        
-            <div class="form-group">
-                <label for="reason">Alasan Pelaporan:</label>
-                <textarea name="reason" id="reason" class="form-control" rows="4" required></textarea>
-            </div>
-        
-            <div class="form-group">
-                <label for="violation_type_id">Jenis Pelanggaran:</label>
-                <select name="violation_type_id" id="violation_type_id" class="form-control" required>
-                    <option value="">Pilih Jenis Pelanggaran</option>
-                    @foreach($violationTypes as $violationType)
-                        <option value="{{ $violationType->id }}">{{ $violationType->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        
-            <button type="submit" class="btn btn-primary">Laporkan</button>
-        </form>
-    </div>
-    <div class="container" style="margin-top: 9vw">
-        <h2>More to explore</h2>
-    </div>
-    <div class="container" style="margin-top: 2vw">
-        <div class="row">
-            <div class="card-columns" style="margin-left: 1vw;margin-right: 1vw">
-            @foreach ($relatedPhotos as $photo)
-                <div class="card card-pin">
-                        <a href="{{ route('related-photo-detail', encrypt($photo->id)) }}">
-                            <img class="card-img" src="{{ Storage::url($photo->lokasifile) }}" alt="Card image">
-                            <div class="overlay">
-                                <h2 class="card-title title">{{ $photo->judulfoto }}</h2>
-                                <div class="more">
-                                    <a href="{{ route('detail', encrypt($photo->id)) }}">
-                                        <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i> More </a>
-                                </div>
-                            </div>
-                        </a>
+        <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reportModalLabel">Report this Image</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-            @endforeach
+                    <div class="modal-body">
+                        <form id="reportForm" action="{{ route('report') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="photo_id" value="{{ $photo->id }}">
+                            <div class="form-group">
+                                @foreach ($violationTypes as $violationType)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="violation_type_id"
+                                            id="violation_type_{{ $violationType->id }}"
+                                            value="{{ $violationType->id }}" required>
+                                        <label class="form-check-label" for="violation_type_{{ $violationType->id }}">
+                                            {{ $violationType->name }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" id="submitReport" class="btn btn-primary">Report</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
+    @if ($relatedPhotos->count() > 0)
+        <div class="container" style="margin-top: 9vw">
+            <h2>More to explore</h2>
+        </div>
+        <div class="container" style="margin-top: 2vw">
+            <div class="row">
+                <div class="card-columns" style="margin-left: 1vw;margin-right: 1vw">
+                    @foreach ($relatedPhotos as $photo)
+                        <div class="card card-pin">
+                            <a href="{{ route('related-photo-detail', encrypt($photo->id)) }}">
+                                <img class="card-img" src="{{ Storage::url($photo->lokasifile) }}" alt="Card image">
+                                <div class="overlay">
+                                    <h2 class="card-title title">{{ $photo->judulfoto }}</h2>
+                                    <div class="more">
+                                        <a href="{{ route('detail', encrypt($photo->id)) }}">
+                                            <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i> More </a>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @else
+    @endif
     <script src="jquery-3.7.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
     <script>
-        setInterval(function() {
-            var currentTime = new Date();
-            $('.comment-time').each(function() {
-                var commentTime = new Date($(this).data('time'));
-                $(this).text(formatCommentTime(commentTime, currentTime));
+        $(document).ready(function() {
+            updateCommentTime()
+            $('#commentForm').submit(function(e) {
+                e.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('comment.store') }}',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        var newCommentHTML = `
+                            <div class="komentar">
+                                <a href="{{ route('profile.view', ['username' => $userName]) }}">
+                                    <strong>{{ Auth::user()->name }}</strong>:
+                                </a>
+                                ${response.comment.komentar}
+                                <div class="comment-time-wrapper">
+                                    <span class="comment-time">${response.comment.formatted_time}</span>
+                                </div>
+                            </div>
+                        `;
+                        $('#commentList').append(newCommentHTML);
+                        $('#KomentarInput').val('');
+                        updateCommentTime()
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ajax request failed:', error);
+                        alert(
+                            'An error occurred while processing your request. Please try again later.'
+                        );
+                    }
+                });
             });
-        }, 1000); // Update setiap detik
+
+            function updateCommentTime() {
+                $('.comment-time').each(function() {
+                    var commentTime = $(this).data('time');
+                    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    $.ajax({
+                        type: 'POST', 
+                        url: '{{ route('format.comment.time') }}',
+                        data: {
+                            _token: csrfToken, 
+                            time: commentTime
+                        },
+                        success: function(response) {
+                            $(this).text(response.formattedTime);
+                        }.bind(this),
+                        error: function(xhr, status, error) {
+                            console.error('Ajax request failed:', error);
+                        }
+                    });
+                });
+            }
+
+            $('#submitReport').click(function(e) {
+                e.preventDefault();
+
+                var formData = $('#reportForm').serialize();
+                var encryptedPhotoId = '{{ encrypt($photo->id) }}';
+                var userReports = {!! json_encode($userReports) !!};
+
+                $.ajax({
+                    url: "{{ route('report') }}",
+                    method: "POST",
+                    data: formData,
+                    success: function(response) {
+                        if (userReports && userReports.includes(encryptedPhotoId)) {
+                            $('#reportButton').hide();
+                            $('#reportMessage').show();
+                        } else {
+                            $('#reportModal').modal('hide');
+                            $('#reportButtonContainer').append('<p id="reportMessage" class="reported" style="padding-top: 0.1vw;">Reported</p>');
+                            $('#reportButton').hide();
+                            $('#reportMessage').show();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Terjadi kesalahan: ' + error);
+                    }
+                });
+            });
+
+
+        });
     </script>
+    <script>
+        document.getElementById('reportForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            $('#reportModal').modal('hide');
+            this.submit();
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
             $(document).on('click', '#likeForm button[type="submit"]', function(e) {

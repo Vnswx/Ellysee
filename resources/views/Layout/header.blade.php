@@ -71,7 +71,6 @@
                         @if (auth()->check() && auth()->user()->role === 'admin')
                         <li><a href="{{ route('admin-index') }}">Dashboard Admin</a></li>
                         @else
-                            <li><a href="#work-process">Explore</a></li>
                         @endif
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" id="dropdownMenuLink" data-toggle="dropdown"

@@ -155,14 +155,17 @@
             widows: 1;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <div class="container">
+    {{-- <div class="container">
         <h3 style="margin-top: 9.5vw">Search Results for "{{ $search }}"</h3>
-    </div>
+    </div> --}}
 
     @if ($users->isEmpty())
-        <div class="container">
-            <p>Tidak ditemukan pengguna dengan nama "{{ $search }}".</p>
+        <div class="container text-center">
+            <p style="margin-top: 20.9vw; margin-bottom: 9.9vw"><i class="fa fa-magnifying-glass"></i> There's no matching result for "{{ $search }}".
+                </p>
+            
         </div>
     @else
         <div class="container" style="margin-top: 9vw">
@@ -170,7 +173,6 @@
             @foreach ($users as $user)
                 <div class="card">
                     <div class="card-body d-flex align-items-center">
-                        <!-- Profile Image (Kiri) -->
                         @if ($user->profile_image === 'images/default_profile.jpg')
                             <img src="{{ asset('images/default_profile.jpg') }}" alt="Profile Image"
                                 class="Instagram-card-user-image" width="80">

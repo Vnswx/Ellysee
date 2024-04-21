@@ -203,22 +203,22 @@
     </div>
 
 
-    {{-- <div class="container">
-        <div class="album-list">
-            <div class="grid-container">
-                @foreach ($albums as $album)
-                    <div class="card">
-                        <div class="card-header">
-                            {{ $album->namaalbum }}
+        {{-- <div class="container">
+            <div class="album-list">
+                <div class="grid-container">
+                    @foreach ($albums as $album)
+                        <div class="card">
+                            <div class="card-header">
+                                {{ $album->namaalbum }}
+                            </div>
+                            <div class="card-body">
+                                <a href="{{ route('profile.showAlbum', ['album' => $album->encrypted_id]) }}">Lihat Foto</a>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <a href="{{ route('profile.showAlbum', ['album' => $album->encrypted_id]) }}">Lihat Foto</a>
-                        </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </div> --}}
+        </div> --}}
     @if (auth()->check() && $user->id === auth()->user()->id)
         @if ($photos->isEmpty())
             <p>This user has not posted anything yet.</p>

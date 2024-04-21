@@ -11,7 +11,7 @@ class Report extends Model
 
     protected $fillable = [
         'photo_id',
-        'reason',
+        'user_id',
         'violation_type_id'
     ];
 
@@ -23,5 +23,10 @@ class Report extends Model
     public function violationTypes()
     {
         return $this->belongsTo(ViolationType::class, 'violation_type_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsTo(User::class);
     }
 }

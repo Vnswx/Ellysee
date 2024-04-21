@@ -7,11 +7,11 @@ use App\Models\ViolationType;
 
 class ViolationTypeController extends Controller
 {
-    public function index()
-    {
-        $violationTypes = ViolationType::all();
-        return view('Layout.Admin.violation', compact('violationTypes'));
-    }
+    // public function index()
+    // {
+    //     $violationTypes = ViolationType::all();
+    //     return view('Layout.Admin.violation', compact('violationTypes'));
+    // }
 
 
     public function store(Request $request)
@@ -22,7 +22,7 @@ class ViolationTypeController extends Controller
 
         ViolationType::create($request->all());
 
-        return redirect()->route('Layout.Admin.dashboard')
+        return redirect()->route('admin-index')
                          ->with('success', 'Jenis pelanggaran berhasil ditambahkan.');
     }
 }

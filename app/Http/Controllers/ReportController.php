@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\ViolationType;
 use App\Models\Report;
 use App\Models\Photo;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class ReportController extends Controller
@@ -20,41 +22,54 @@ class ReportController extends Controller
     }
 
 
-    // Menyimpan laporan yang dilakukan oleh pengguna
     public function store(Request $request)
     {
         $request->validate([
             'photo_id' => 'required|exists:photos,id',
-            'reason' => 'required',
             'violation_type_id' => 'required|exists:violation_types,id',
         ]);
-
-        Report::create([
-            'photo_id' => $request->photo_id,
-            'reason' => $request->reason,
-            'violation_type_id' => $request->violation_type_id,
-        ]);
-
-        return redirect()->back()->with('success', 'Laporan berhasil disimpan.');
+    
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+    
+        try {
+            $report = Report::create([
+                'user_id' => Auth::id(),
+                'photo_id' => $request->photo_id,
+                'violation_type_id' => $request->violation_type_id,
+            ]);
+    
+            if ($report) {
+                $photo = Photo::find($request->photo_id);
+                if ($photo) {
+                    $photo->update(['reported' => true]);
+                }
+            }
+    
+            return response()->noContent();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to create report'], 500);
+        }
     }
 
     public function approve(Report $report)
     {
         $photo = Photo::find($report->photo_id);
         if ($photo) {
+            $photo->comments()->delete();
+            $photo->likes()->delete();
             $photo->delete();
         }
-
         $report->delete();
-
-        return view('Layout.Admin.dashboard')->with('success', 'Foto telah dihapus.');
+        return redirect()->route('admin-index')->with('success', 'Foto berhasil ditambahkan.');
     }
 
     public function reject(Report $report)
     {
         $report->delete();
+        return redirect()->route('admin-index')->with('success', 'Foto berhasil ditambahkan.');
 
-        return view('Layout.Admin.dashboard')->with('success', 'Laporan telah ditolak.');
     }
 
 }

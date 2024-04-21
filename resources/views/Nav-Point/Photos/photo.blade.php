@@ -92,10 +92,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title mb-4">Tambah Foto</h5>
-
+                            
                             <div class="row">
                                 <!-- Kolom kiri untuk input gambar -->
                                 <div class="col-md-6">
+                                    <input type="hidden" name="user_id" value="{{ $user->id }}">
                                     <div class="image-upload-wrap">
                                         <input class="file-upload-input" name="lokasifile" type='file'
                                             onchange="readURL(this);" accept="image/*" />
@@ -154,7 +155,7 @@
                             <div class="text-right">
                                 <button type="button" class="btn btn-secondary"
                                     onclick="window.location.href='{{ route('profile') }}'">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Tambah Foto</button>
+                                <button type="submit" class="btn btn-primary">Create</button>
                             </div>
                         </div>
                     </div>

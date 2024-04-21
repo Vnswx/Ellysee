@@ -50,15 +50,12 @@ class HomeController extends Controller
         }
 
         $comments = $photo->comments;
-        $currentTime = Carbon::now();
-        foreach ($comments as $comment) {
-            $comment->formatted_time = $this->formatCommentTime($comment->created_at, $currentTime);
-        }
 
         $totalComments = $photo->comments->count();
         $totalLikes = $photo->likes()->count();
+        $userReports = Auth::user()->reports->pluck('photo_id')->toArray();
 
-        return view('Nav-Point.Photos.detail-photo', compact('photo', 'userName', 'userProfileImage', 'comments', 'totalComments', 'totalLikes', 'relatedPhotos', 'userId', 'violationTypes'));
+        return view('Nav-Point.Photos.detail-photo', compact('photo', 'userName', 'userProfileImage', 'comments', 'totalComments', 'totalLikes', 'relatedPhotos', 'userId', 'violationTypes', 'userReports'));
     }
 
     private function getRelatedPhotos($photo)
@@ -84,35 +81,38 @@ class HomeController extends Controller
         $relatedLikes = $photo->likes()->count();
 
         $comments = $photo->comments;
-        $currentTime = Carbon::now();
-        foreach ($comments as $comment) {
-            $comment->formatted_time = $this->formatCommentTime($comment->created_at, $currentTime);
-        }
+        $userReports = Auth::user()->reports->pluck('photo_id')->toArray();
 
-        return view('Nav-Point.Profile.user-comment-profile', compact('photo', 'relatedPhotos', 'relatedComments', 'relatedLikes', 'userName', 'userProfileImage', 'comments'));
+        return view('Nav-Point.Profile.user-comment-profile', compact('photo', 'relatedPhotos', 'relatedComments', 'relatedLikes', 'userName', 'userProfileImage', 'comments', 'userReports'));
     }
 
 
-    public function formatCommentTime($time, $currentTime)
+    public function ajaxFormatCommentTime(Request $request)
     {
+        $time = Carbon::parse($request->time);
+        $currentTime = Carbon::now();
+
         $commentTime = $time->diff($currentTime);
 
         if ($commentTime->days > 0) {
             if ($commentTime->days == 1) {
-                return 'Yesterday';
+                $formattedTime = 'Yesterday';
             } elseif ($commentTime->days > 6) {
-                return $time->format('Y-m-d');
+                $formattedTime = $time->format('Y-m-d');
             } else {
-                return $commentTime->days . ' days ago';
+                $formattedTime = $commentTime->days . ' days ago';
             }
         } elseif ($commentTime->h > 0) {
-            return $commentTime->h . ' hours ago';
+            $formattedTime = $commentTime->h . ' hours ago';
         } elseif ($commentTime->i > 0) {
-            return $commentTime->i . ' minutes ago';
+            $formattedTime = $commentTime->i . ' minutes ago';
         } else {
-            return 'Just now';
+            $formattedTime = 'Just now';
         }
+
+        return response()->json(['formattedTime' => $formattedTime]);
     }
+
 
     public function storeComment(Request $request)
     {
@@ -123,12 +123,11 @@ class HomeController extends Controller
 
         $comment = new Comment();
         $comment->photo_id = $request->photo_id;
-        $comment->user_id = auth()->user()->id;
+        $comment->user_id = Auth::user()->id;
         $comment->komentar = $request->komentar;
         $comment->save();
-        // dd($comment);
 
-        return redirect()->back()->with('success', 'Comment added successfully.');
+        return response()->json(['success' => true, 'comment' => $comment]);
     }
 
     public function like(Request $request)
@@ -165,7 +164,7 @@ class HomeController extends Controller
     public function showProfile($id)
     {
         $user = User::findOrFail($id);
-        dd($user);
+        // dd($user);
         return view('Nav-Point.Profile.user-comment-profile', compact('user'));
     }
 

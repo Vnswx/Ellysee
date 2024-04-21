@@ -39,6 +39,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/photos/links/{encryptedUserId}', [HomeController::class, 'showRelatedPhoto'])->name('related-photo-detail');
     Route::post('/like', [HomeController::class, 'like'])->name('like');
     Route::post('/comments', [HomeController::class, 'storeComment'])->name('comment.store');
+    Route::post('/format-comment-time', [HomeController::class, 'ajaxFormatCommentTime'])->name('format.comment.time');
     Route::get('/profile/album/{album}', [ProfileController::class, 'showAlbum'])->name('profile.showAlbum');
     Route::get('/edit-profile', [ProfileController::class, 'edit'])->name('edit-profile');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
@@ -49,7 +50,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/photos', [PhotoController::class, 'index'])->name('photos');
     Route::post('/photos/create', [PhotoController::class, 'store'])->name('photos-create');
     Route::post('/logout', [AuthController::class, 'actionLogout'])->name('logout');
-    Route::get('/dashboard', [ReportController::class, 'index'])->name('admin-index');
+    Route::get('/dashboard-admin', [ReportController::class, 'index'])->name('admin-index');
     Route::post('/report', [ReportController::class, 'store'])->name('report');
     Route::get('/violation', [ViolationTypeController::class, 'index'])->name('violation-index');
     Route::post('/violation-types', [ViolationTypeController::class, 'store'])->name('violation-store');
