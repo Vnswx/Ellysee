@@ -7,6 +7,9 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## About Ellysee
+Through visual exploration, Ellysee is a creative platform that aims to inspire and connect people. Ellysee provides a carefully chosen assortment of concepts and pictures that arouse enthusiasm and creativity, whether you're searching for DIY projects, fashion trends, culinary recipes, or design inspiration. Keep track of your best discoveries, make collections that are uniquely yours, and connect with others who share your taste. When you use Ellysee, the possibilities are endless.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
